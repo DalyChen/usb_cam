@@ -101,6 +101,7 @@ public:
     node_.param("framerate", framerate_, 30);
     // possible values: yuyv, uyvy, mjpeg, yuvmono10, rgb24
     node_.param("pixel_format", pixel_format_name_, std::string("mjpeg"));
+    ROS_INFO("pixel format param config: %s", pixel_format_name_.c_str());
     // enable/disable autofocus
     node_.param("autofocus", autofocus_, false);
     node_.param("focus", focus_, -1); //0-255, -1 "leave alone"
@@ -148,6 +149,7 @@ public:
 
     // set the pixel format
     UsbCam::pixel_format pixel_format = UsbCam::pixel_format_from_string(pixel_format_name_);
+    ROS_INFO("pixel format enum: %d", pixel_format);
     if (pixel_format == UsbCam::PIXEL_FORMAT_UNKNOWN)
     {
       ROS_FATAL("Unknown pixel format '%s'", pixel_format_name_.c_str());

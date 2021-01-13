@@ -391,6 +391,7 @@ int UsbCam::init_mjpeg_decoder(int image_width, int image_height)
 
 #if LIBAVCODEC_VERSION_MAJOR > 52
   avcodec_context_->pix_fmt = AV_PIX_FMT_YUV422P;
+  ROS_INFO("here2 :%d", avcodec_context_->pix_fmt);
   avcodec_context_->codec_type = AVMEDIA_TYPE_VIDEO;
 #endif
 
@@ -444,6 +445,28 @@ void UsbCam::mjpeg2rgb(char *MJPEG, int len, char *RGB, int NumPixels)
     ROS_ERROR("outbuf size mismatch.  pic_size: %d bufsize: %d", pic_size, avframe_camera_size_);
     return;
   }
+
+  AVPixelFormat pixFormat;
+  switch (avcodec_context_->pix_fmt)
+  {
+    case AV_PIX_FMT_YUVJ420P:
+      pixFormat = AV_PIX_FMT_YUV420P;
+      break;
+    case AV_PIX_FMT_YUVJ422P:
+      pixFormat = AV_PIX_FMT_YUV422P;
+      break;
+    case AV_PIX_FMT_YUVJ444P:
+      pixFormat = AV_PIX_FMT_YUV444P;
+      break;
+    case AV_PIX_FMT_YUVJ440P:
+      pixFormat = AV_PIX_FMT_YUV440P;
+      break;
+    default:
+      pixFormat = avcodec_context_->pix_fmt;
+  }
+  avcodec_context_->pix_fmt = pixFormat;
+
+  // ROS_INFO("avcodec_context pix_fmt: %d", avcodec_context_->pix_fmt);
 
   video_sws_ = sws_getContext(xsize, ysize, avcodec_context_->pix_fmt, xsize, ysize, AV_PIX_FMT_RGB24, SWS_BILINEAR, NULL,
 			      NULL,  NULL);
@@ -1018,6 +1041,7 @@ void UsbCam::start(const std::string& dev, io_method io_method,
   {
     pixelformat_ = V4L2_PIX_FMT_MJPEG;
     init_mjpeg_decoder(image_width, image_height);
+    ROS_INFO("here 1");
   }
   else if (pixel_format == PIXEL_FORMAT_YUVMONO10)
   {
